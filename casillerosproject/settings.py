@@ -37,7 +37,7 @@ SITE_ID = 3
 # Application definition
 
 CSRF_TRUSTED_ORIGINS = [
-    'railway-production-88d2.up.railway.app',
+    'https://railway-production-88d2.up.railway.app',
     'http://127.0.0.1:8000'
 ]
 CORS_ALLOW_ALL_ORIGINS = True
