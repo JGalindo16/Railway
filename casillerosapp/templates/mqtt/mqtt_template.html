@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Detalle del Controlador{% endblock %}
+
+{% block content %}
+    <h1>MQTT Testing with Django</h1>
+    {% if messages %}
+        <div class="message">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="post" action="/mqtt/">
+        {% csrf_token %}
+        <button type="submit">Conectar y Enviar Mensaje MQTT</button>
+    </form>
+    <br>
+    <a href="/mqtt/messages/">
+        <button>Ver Mensajes Recibidos</button>
+    </a>
+{% endblock %}

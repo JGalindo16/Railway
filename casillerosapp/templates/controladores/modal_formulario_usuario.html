@@ -1,0 +1,71 @@
+{% load static %}
+
+<form method="post" action="{% url 'actualizar_casillero_usuario' casillero.id %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_usuario_email" class="form-label">{{ form_usuario.usuario_email.label }}</label>
+        {{ form_usuario.usuario_email }}
+        {% if form_usuario.usuario_email.errors %}
+            <div class="text-danger">
+                {% for error in form_usuario.usuario_email.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <p>Por favor selecciona los nuevos caracteres de la clave (4 caracteres).</p>
+    <div class="d-flex justify-content-center gap-2 mb-3">
+        <!-- Renderizar los selectores de clave con estilo de Bootstrap -->
+        <div class="form-group">
+            {{ form_usuario.clave1 }}
+        </div>
+        <div class="form-group">
+            {{ form_usuario.clave2 }}
+        </div>
+        <div class="form-group">
+            {{ form_usuario.clave3 }}
+        </div>
+        <div class="form-group">
+            {{ form_usuario.clave4 }}
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Script cargado y ejecutándose'); // Verifica que el script se cargue
+
+        const imagenesOpciones = {
+            'A': "{% static 'assets/Logos/A.svg' %}",
+            'B': "{% static 'assets/Logos/B.svg' %}",
+            'C': "{% static 'assets/Logos/C.svg' %}",
+            'D': "{% static 'assets/Logos/D.svg' %}",
+            'E': "{% static 'assets/Logos/E.svg' %}",
+            'F': "{% static 'assets/Logos/F.svg' %}"
+        };
+
+        document.querySelectorAll('.form-select').forEach(select => {
+            console.log('Select encontrado:', select);
+
+            select.addEventListener('change', function() {
+                const selectedOption = select.options[select.selectedIndex].value;
+                const imagen = imagenesOpciones[selectedOption];
+                console.log('Opción seleccionada:', selectedOption, 'Imagen:', imagen);
+                if (imagen) {
+                    select.style.background = `url(${imagen}) no-repeat right center / 20px 20px`;
+                }
+            });
+
+            const initialOption = select.options[select.selectedIndex].value;
+            const initialImage = imagenesOpciones[initialOption];
+            if (initialImage) {
+                select.style.background = `url(${initialImage}) no-repeat right center / 20px 20px`;
+            }
+        });
+    });
+</script>

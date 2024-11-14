@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmación de Casillero</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: #333;
+            color: #ffffff;
+            padding: 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .clave-container img {
+            width: 40px;
+            height: 40px;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+
+        .footer {
+            background-color: #333;
+            color: #ffffff;
+            padding: 10px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            Confirmación de Casillero
+        </div>
+        <div class="content">
+            <h2>Hola</h2>
+            <p>Gracias por actualizar la información de tu casillero. Los detalles de tu casillero son:</p>
+            <p><strong>Email:</strong> {{ casillero.email }}</p>
+            <p><strong>Clave:</strong></p>
+            <div class="clave-container">
+                {% for char in casillero.clave %}
+                    {% if char == 'A' %}
+                        <img src="cid:A" alt="A">
+                    {% elif char == 'B' %}
+                        <img src="cid:B" alt="B">
+                    {% elif char == 'C' %}
+                        <img src="cid:C" alt="C">
+                    {% elif char == 'D' %}
+                        <img src="cid:D" alt="D">
+                    {% elif char == 'E' %}
+                        <img src="cid:E" alt="E">
+                    {% elif char == 'F' %}
+                        <img src="cid:F" alt="F">
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <p>¡Gracias por usar nuestro servicio!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; Lockers APP Grupo 11 PDS 2024.</p>
+        </div>
+    </div>
+</body>
+</html>
