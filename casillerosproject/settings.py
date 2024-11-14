@@ -30,11 +30,18 @@ SECRET_KEY = 'django-insecure-&=ar88r-#co^^9i&14e@wdjx*j9=p^mtj2hzyditw8o&k5f2(m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 SITE_ID = 3
 
 # Application definition
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000'
+]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',  
     'django.contrib.staticfiles',
     'casillerosapp', 
     'django.contrib.sites', 
@@ -51,6 +59,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'django_bootstrap5',
 ]
+
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -65,6 +74,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,6 +83,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware', 
 ]
+
 
 ROOT_URLCONF = 'casillerosproject.urls'
 
@@ -146,9 +157,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR/'static']
+
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
