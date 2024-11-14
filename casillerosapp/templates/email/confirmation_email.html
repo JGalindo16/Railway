@@ -67,19 +67,7 @@
             <p><strong>Clave:</strong></p>
             <div class="clave-container">
                 {% for char in casillero.clave %}
-                    {% if char == 'A' %}
-                        <img src="cid:A" alt="A">
-                    {% elif char == 'B' %}
-                        <img src="cid:B" alt="B">
-                    {% elif char == 'C' %}
-                        <img src="cid:C" alt="C">
-                    {% elif char == 'D' %}
-                        <img src="cid:D" alt="D">
-                    {% elif char == 'E' %}
-                        <img src="cid:E" alt="E">
-                    {% elif char == 'F' %}
-                        <img src="cid:F" alt="F">
-                    {% endif %}
+                    <img src="https://railway-production-88d2.up.railway.app/static/assets/Logos/{{char}}.svg" alt="{{ char }}">
                 {% endfor %}
             </div>
             <p>¡Gracias por usar nuestro servicio!</p>
