@@ -1,1 +1,1 @@
-web: gunicorn tutorias.wsgi
+web: gunicorn casillerosproject.wsgi
