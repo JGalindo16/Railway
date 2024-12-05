@@ -5,7 +5,10 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.db.models.signals import post_save
-from casillerosapp.models import Casillero
+from casillerosapp.models import Casillero, User
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.utils.timezone import now
+from datetime import timedelta
 
 @receiver(user_signed_up)
 def populate_user_profile(sender, request, user, sociallogin=None, **kwargs):
@@ -17,6 +20,9 @@ def populate_user_profile(sender, request, user, sociallogin=None, **kwargs):
 
 @receiver(post_save, sender=Casillero)
 def send_confirmation_email(sender, instance, created, **kwargs):
+    if getattr(instance, '_skip_signal', False):  # Evita ejecutar si el flag está activo
+        return
+    
     subject = "Confirmación de Casillero Actualizado"
     casillero = instance  # El objeto 'casillero' guardado
 
@@ -46,4 +52,19 @@ def send_confirmation_email(sender, instance, created, **kwargs):
     # Enviamos el correo
     email.send(fail_silently=False)
 
+
+@receiver(user_logged_in)
+def log_login(sender, request, user, **kwargs):
+    if isinstance(user, User):  # Verifica que sea del tipo correcto
+        user.last_login_time = now()  # Registra la hora de inicio de sesión
+        user.save()
+
+@receiver(user_logged_out)
+def log_logout(sender, request, user, **kwargs):
+    if isinstance(user, User):  # Verifica que sea del tipo correcto
+        if user.last_login_time:  # Solo si hay una sesión activa
+            session_duration = now() - user.last_login_time  # Calcula la duración de la sesión
+            user.total_time_used += session_duration  # Acumula el tiempo
+            user.last_login_time = None  # Limpia la última hora de inicio de sesión
+            user.save()
 

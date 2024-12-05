@@ -1,0 +1,187 @@
+{% load custom_filters %}
+{% load static %}
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Mensaje</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr 
+            {% if log.type == "Cambio_contraseña" %}
+                data-bs-toggle="collapse" 
+                data-bs-target="#accordionLog{{ log.id }}" 
+                aria-expanded="false" 
+                aria-controls="accordionLog{{ log.id }}" 
+                class="collapsible-row"
+                style="cursor: pointer;"
+            {% endif %}
+        >
+            <td>{{ log.fecha|restar_horas:3|date:"d/m/Y H:i:s" }}</td>
+            <td>{{ log.mensaje }}</td>
+        </tr>
+        {% if log.type == "Cambio_contraseña" %}
+        <tr class="collapse" id="accordionLog{{ log.id }}">
+            <td colspan="2">
+                <div class="p-3 position-relative">
+                    <!-- Botón de cierre -->
+                    <button 
+                        type="button" 
+                        class="btn-close position-absolute top-0 end-0 me-2 mt-2" 
+                        aria-label="Close" 
+                        onclick="closeAccordion('{{ log.id }}')">
+                    </button>
+                    <!-- Contenido del acordeón -->
+                    <h5>La contraseña asignada fue: </h5>
+                    <p class="card-text">
+                        {% for char in log.password %}
+                            <img src="{% static 'assets/Logos/' %}{{ char }}.svg" alt="{{ char }}" style="width: 40px; height: 40px; display: inline-block; vertical-align: middle;">
+                        {% endfor %}
+                    </p>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation" style="margin-top: 20px;">
+    <ul class="pagination">
+        {% if logs.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="loadPage({{ logs.previous_page_number }}, {{ casillero_id }}); return false;">&laquo;</a>
+            </li>
+        {% endif %}
+        {% for num in logs.paginator.page_range %}
+            <li class="page-item {% if logs.number == num %}active{% endif %}">
+                <a class="page-link" href="#" onclick="loadPage({{ num }}, {{ casillero_id }}); return false;">{{ num }}</a>
+            </li>
+        {% endfor %}
+        {% if logs.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="loadPage({{ logs.next_page_number }}, {{ casillero_id }}); return false;">&raquo;</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<style>
+    /* Resaltar fila colapsable al hacer hover */
+    .collapsible-row:hover {
+        transform: scale(1.02); /* Hace la fila un poco más grande */
+        background-color: rgba(99, 221, 172, 0.1); /* Cambia el color de fondo */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Agrega una sombra */
+        transition: all 0.3s ease; /* Animación suave */
+    }
+    /* Botón de cierre del acordeón */
+    .btn-close {
+        background-color: #dc3545; /* Color rojo */
+        border: none;
+        color: white;
+        opacity: 0.9;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+        background-color: #b02a37; /* Color rojo oscuro */
+    }
+    /* Transiciones para el acordeón */
+    .collapse {
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    /* Fondo negro con texto blanco para el encabezado de la tabla */
+    .table thead th {
+        background-color: #343a40; /* Fondo negro */
+        color: #ffffff; /* Texto blanco */
+        font-weight: bold;
+    }
+
+    /* Bordes internos y externos */
+    .table-bordered {
+        border: 2px solid #343a40; /* Borde externo oscuro */
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #343a40; /* Bordes internos */
+    }
+
+    /* Personalización de los botones de paginación */
+    .pagination .page-link {
+        color: rgba(99, 221, 172, 0.8);
+        border-color: rgba(99, 221, 172, 0.8);
+    }
+
+    .pagination .active .page-link {
+        background-color: rgba(99, 221, 172, 0.8);
+        border-color: rgba(99, 221, 172, 0.8);
+        color: #fff;
+    }
+
+    /* Centrado y espaciado uniforme en las celdas */
+    .table td,
+    .table th {
+        text-align: center;
+        vertical-align: middle;
+        padding: 15px;
+    }
+
+    /* Animación para el acordeón */
+    .collapse {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<script>
+    function loadPage(pageNumber, casilleroId) {
+        if (!casilleroId) {
+            console.error("El casilleroId es inválido:", casilleroId);
+            return; // Detén la ejecución si no hay casillero_id
+        }
+
+        fetch(`/obtener_logs/${casilleroId}/?page=${pageNumber}`)
+            .then(response => response.text())
+            .then(html => {
+                // Actualiza solo el contenido del modal correspondiente
+                const modalBody = document.querySelector(`#modalBodyLogs${casilleroId}`);
+                if (modalBody) {
+                    modalBody.innerHTML = html;
+                } else {
+                    console.error("No se encontró el modalBody con ID:", `#modalBodyLogs${casilleroId}`);
+                }
+            })
+            .catch(error => console.error('Error al cargar la página:', error));
+    }
+</script>
+<script>
+    function closeAccordion(logId) {
+        const accordionRow = document.getElementById(`accordionLog${logId}`);
+        if (accordionRow) {
+            accordionRow.classList.remove('show'); // Elimina la clase 'show' para cerrar el acordeón
+        }
+    }
+
+    function loadPage(pageNumber, casilleroId) {
+        if (!casilleroId) {
+            console.error("El casilleroId es inválido:", casilleroId);
+            return; // Detén la ejecución si no hay casillero_id
+        }
+
+        fetch(`/obtener_logs/${casilleroId}/?page=${pageNumber}`)
+            .then(response => response.text())
+            .then(html => {
+                // Actualiza solo el contenido del modal correspondiente
+                const modalBody = document.querySelector(`#modalBodyLogs${casilleroId}`);
+                if (modalBody) {
+                    modalBody.innerHTML = html;
+                } else {
+                    console.error("No se encontró el modalBody con ID:", `#modalBodyLogs${casilleroId}`);
+                }
+            })
+            .catch(error => console.error('Error al cargar la página:', error));
+    }
+</script>

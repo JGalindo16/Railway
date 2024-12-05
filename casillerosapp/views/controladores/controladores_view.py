@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from casillerosapp.models import Controlador, Casillero
+from casillerosapp.models import Controlador, Casillero, Logs
 from casillerosapp.forms import UsuarioCasilleroForm
 from casillerosapp.choices import KEY_CHOICES
 from django.contrib import messages
@@ -13,6 +13,7 @@ import time
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.paginator import Paginator
 
 # Configuración MQTT
 client = mqtt.Client()
@@ -60,7 +61,7 @@ def send_status_email(casillero):
 def on_message(client, userdata, msg):
     global last_message_time
     mensaje = json.loads(msg.payload.decode())
-
+    
     nombre_controlador = mensaje.get("nombre", "No hay nombre")
     try:
         controlador = Controlador.objects.get(nombre=nombre_controlador)
@@ -76,6 +77,9 @@ def on_message(client, userdata, msg):
 
     last_message_time[controlador.id] = timestamp
 
+    # Lista para rastrear casilleros que ya recibieron un correo
+    casilleros_notificados = set()
+
     for casillero_data in mensaje.get("casilleros", []):
         identificador = casillero_data["identificador"]
         estado_abierto = casillero_data["abierto"]
@@ -83,9 +87,17 @@ def on_message(client, userdata, msg):
         try:
             casillero = Casillero.objects.get(identificador=identificador, controlador=controlador)
             if casillero.abierto != estado_abierto:
-                send_status_email(casillero)
                 casillero.abierto = estado_abierto
-                casillero.save()
+                casillero._skip_signal = True  # Activar el flag temporal
+                casillero.save()  # El signal no se ejecutará
+                if casillero.email and casillero.id not in casilleros_notificados:
+                    send_status_email(casillero)
+                    casilleros_notificados.add(casillero.id)
+                
+                if estado_abierto:
+                    Logs.objects.create(type="Apertura", casillero=casillero, mensaje="El casillero fue abierto", fecha=timestamp)
+                else:
+                    Logs.objects.create(type="Cierre", casillero=casillero, mensaje="El casillero fue cerrado", fecha=timestamp)
         except Casillero.DoesNotExist:
             print(f"No se encontró un casillero con el identificador '{identificador}' para el controlador '{controlador.nombre}'")
 
@@ -176,6 +188,8 @@ def actualizar_casillero_usuario(request, casillero_id):
             casillero.email = form_usuario.cleaned_data['usuario_email']
             nueva_clave = "".join([request.POST.get(f'clave{i}') for i in "1234"])
             casillero.clave = nueva_clave
+            timezone = pytz.timezone('America/Santiago')
+            Logs.objects.create(type="Cambio_contraseña", casillero=casillero, fecha= datetime.now(timezone), mensaje="La clave del casillero fue cambiada", password=nueva_clave)
             casillero.save()
             
             # Enviar JSON completo al broker tras actualizar la clave
@@ -220,3 +234,14 @@ def enviar_json_controlador(controlador):
     }
     time.sleep(2)  # Espera un poco para permitir el callback
     client.publish("esp32/status",  json.dumps(message))
+
+def obtener_logs(request, casillero_id):
+    logs = Logs.objects.filter(casillero_id=casillero_id).order_by('-fecha')
+    paginator = Paginator(logs, 10)  # 10 logs por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'partials/logs_table.html', {
+        'logs': page_obj,
+        'casillero_id': casillero_id,  
+    })

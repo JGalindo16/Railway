@@ -61,14 +61,7 @@
                 <div class="offcanvas-body">
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                         <li class="nav-item">
-                            <a class="nav-link position-relative mr-2">
-                                <div class="notification-wrapper">
-                                    <img src="{% static 'assets/Logos/bell_icon1.svg' %}" class="image" alt="Notificaciones" style="max-height: 30px;">
-                                    <span id="notificationIndicator" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                                        !
-                                    </span>
-                                </div>
-                            </a>
+                            <a class="nav-link" href="{% url 'lista_controladores' %}">Controladores</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'home' %}">Inicio</a>

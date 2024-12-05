@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 
 {% load static %}
+{% load custom_filters %}.
 
 {% block title %}Detalle del Controlador{% endblock %}
 
@@ -29,7 +30,16 @@
                             <img src="{% static 'assets/Logos/' %}{{ char }}.svg" alt="{{ char }}" style="width: 40px; height: 40px; display: inline-block; vertical-align: middle;">
                         {% endfor %}
                     </p>
-                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalCambiarClave{{ casillero.id }}" data-casillero-id="{{ casillero.id }}">Cambiar clave</button>
+                    <br>
+                    <button class="btn" style="background-color: rgb(123, 183, 236);" data-bs-toggle="modal" data-bs-target="#modalCambiarClave{{ casillero.id }}" data-casillero-id="{{ casillero.id }}">Cambiar clave</button>
+                    <button
+                        class="btn"
+                        style="background-color: #333; color: white;"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalLogs{{ casillero.id }}"
+                        onclick="loadPage(1, {{ casillero.id }});">
+                        Actividad Casillero
+                    </button>
                     <div class="modal fade" id="modalCambiarClave{{ casillero.id }}" tabindex="-1" aria-labelledby="modalCambiarClaveLabel{{ casillero.id }}" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -43,6 +53,22 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal fade" id="modalLogs{{ casillero.id }}" tabindex="-1" aria-labelledby="modalLogsLabel{{ casillero.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-xl"> <!-- Usa modal-xl para un modal más grande -->
+                            <div class="modal-content">
+                                <div class="modal-header" style="justify-content: center; text-align: center;">
+                                    <h2 class="modal-title w-100" id="modalLogsLabel{{ casillero.id }}" style="font-family: 'Montserrat', sans-serif; font-weight: bold;">
+                                        Actividad del Casillero {{ casillero.identificador }}
+                                    </h2>
+                                    <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="modalBodyLogs{{ casillero.id }}">
+                                    <!-- Aquí se cargarán los logs paginados -->
+                                    <p>Cargando...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% empty %}
@@ -52,10 +78,84 @@
     </div>
 </div>
 
+<script>
+    function loadLogs(casilleroId) {
+        const url = `/obtener_logs/${casilleroId}/`;
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('logsContent').innerHTML = html;
+            })
+            .catch(error => console.error('Error cargando logs:', error));
+    }
+
+    function loadPage(pageNumber, casilleroId) {
+        if (!casilleroId) {
+            console.error("El casilleroId es inválido:", casilleroId);
+            return; // Detén la ejecución si no hay casillero_id
+        }
+
+        fetch(`/obtener_logs/${casilleroId}/?page=${pageNumber}`)
+            .then(response => response.text())
+            .then(html => {
+                // Actualiza solo el contenido del modal correspondiente
+                const modalBody = document.querySelector(`#modalBodyLogs${casilleroId}`);
+                if (modalBody) {
+                    modalBody.innerHTML = html;
+                } else {
+                    console.error("No se encontró el modalBody con ID:", `#modalBodyLogs${casilleroId}`);
+                }
+            })
+            .catch(error => console.error('Error al cargar la página:', error));
+    }
+</script>
+
 <style>
+    /* Estilo específico para el modal de logs */
+    #modalLogs{{ casillero.id }} .modal-dialog {
+        max-width: 90%;
+        max-height: 90%;
+    }
+
+    #modalLogs{{ casillero.id }} .modal-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #modalLogs{{ casillero.id }} .modal-body {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    /* Estilo para los demás elementos */
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    /* Alinear botones en la misma línea */
+    .casillero-card .btn {
+        margin-right: 10px;
+    }
+
+    .casillero-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Espaciado uniforme entre elementos */
+    }
+
+    .casillero-card .card-text {
+        margin-bottom: 5px; /* Reduce espacio innecesario */
+    }
+
+    .btn-warning,
+    .btn-info {
+        padding: 10px 20px; /* Botones más amplios y uniformes */
+    }
+
     .modal-open .casillero-card:hover {
-    transform: none;
-    box-shadow: none;
+        transform: none;
+        box-shadow: none;
     }
 
     .modal-body input {
@@ -66,7 +166,7 @@
         border: 2px solid #333; /* Borde del dashboard */
         border-radius: 15px;
         background-color: #222; /* Fondo del dashboard */
-        color: #fff;
+        color: #ffffffe3;
         margin: 20px auto;
         max-width: 90%; /* Ajustar tamaño del dashboard */
         padding: 0;
@@ -85,7 +185,7 @@
     }
 
     .casillero-card {
-        background-color: #fff; /* Fondo blanco */
+        background-color: #ffffffe5; /* Fondo blanco */
         color: #000; /* Letra negra */
         padding: 15px;
         border-radius: 8px;
@@ -105,6 +205,12 @@
     .btn {
         font-family: 'Montserrat', sans-serif;
         font-weight: bold;
+    }
+    
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background: url("{% static 'assets/Logos/fondo_login1.jpeg' %}") no-repeat center center fixed;
+        background-size: cover;
     }
 </style>
 
@@ -165,6 +271,34 @@
             });
         });
     });
+</script>
+<script>
+    function closeAccordion(logId) {
+        const accordionRow = document.getElementById(`accordionLog${logId}`);
+        if (accordionRow) {
+            accordionRow.classList.remove('show'); // Elimina la clase 'show' para cerrar el acordeón
+        }
+    }
+
+    function loadPage(pageNumber, casilleroId) {
+        if (!casilleroId) {
+            console.error("El casilleroId es inválido:", casilleroId);
+            return; // Detén la ejecución si no hay casillero_id
+        }
+
+        fetch(`/obtener_logs/${casilleroId}/?page=${pageNumber}`)
+            .then(response => response.text())
+            .then(html => {
+                // Actualiza solo el contenido del modal correspondiente
+                const modalBody = document.querySelector(`#modalBodyLogs${casilleroId}`);
+                if (modalBody) {
+                    modalBody.innerHTML = html;
+                } else {
+                    console.error("No se encontró el modalBody con ID:", `#modalBodyLogs${casilleroId}`);
+                }
+            })
+            .catch(error => console.error('Error al cargar la página:', error));
+    }
 </script>
 
 

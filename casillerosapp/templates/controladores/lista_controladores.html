@@ -1,6 +1,8 @@
 {% extends 'base/base.html' %}
 
 {% block title %}Lista de Controladores{% endblock %}
+{% load custom_filters %}
+{% load static %}
 
 {% block content %}
 <div class="dashboard-container mx-auto mt-4 mb-4" style="display: flex; flex-direction: column; height: 85vh; border-radius: 15px; overflow: hidden; border: 2px solid #343a40; max-width: 1200px;">
@@ -10,13 +12,13 @@
     </div>
 
     <!-- Contenido del dashboard -->
-    <div class="dashboard-content flex-grow-1" style="overflow-y: auto; background-color: #f8f9fa; padding: 20px; font-family: 'Montserrat', sans-serif;">
+    <div class="dashboard-content flex-grow-1" style="overflow-y: auto; background-color: #f8f9faf0; padding: 20px; font-family: 'Montserrat', sans-serif;">
         {% for controlador in controladores %}
-        <div class="controlador-card shadow-sm p-3 mb-4" style="background-color: #fff; border-top: 3px solid #343a40; border-bottom: 3px solid #343a40; border-left: 3px solid #343a40; border-right: 3px solid #343a40; border-radius: 10px; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+        <div class="controlador-card shadow-sm p-3 mb-4" style="background-color: #ffffffeb; border-top: 3px solid #343a40; border-bottom: 3px solid #343a40; border-left: 3px solid #343a40; border-right: 3px solid #343a40; border-radius: 10px; transition: transform 0.3s ease, box-shadow 0.3s ease;">
             <a href="{% url 'detalle_controlador' controlador.id %}" style="text-decoration: none; color: inherit;">
                 <h5 class="card-title" style="color: #000; font-family: 'Montserrat', sans-serif;">{{ controlador.nombre }}</h5>
                 <p class="card-text" style="color: #000; font-family: 'Montserrat', sans-serif;">
-                    Última conexión: {{ controlador.ultima_conexion|date:"d/m/Y H:i" }}
+                    Última conexión: {{ controlador.ultima_conexion|restar_horas:3|date:"d/m/Y H:i" }}
                 </p>
             </a>
         </div>
@@ -39,6 +41,11 @@
     /* Asegura que toda la tipografía esté en la fuente Montserrat */
     body, .card-title, .card-text, h1, p, a {
         font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+        background: url("{% static 'assets/Logos/fondo_login1.jpeg' %}") no-repeat center center fixed;
+        background-size: cover;
     }
 </style>
 {% endblock %}

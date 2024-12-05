@@ -63,7 +63,7 @@
         <div class="content">
             <h2>Hola usuario del mail: {{ casillero.email }}</h2>
             <p><strong>Queremos informarte que el estado de tu casillero {{casillero.identificador}}</strong></p>
-            {% if casillero.abierto == 'False' %}
+            {% if casillero.abierto == False %}
                 <p>Se encuentra cerrado</p>
             {%else%}
                 <p>Se encuentra abierto</p>

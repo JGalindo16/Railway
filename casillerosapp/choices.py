@@ -1,8 +1,8 @@
 KEY_CHOICES = [
-    ('A', 'Mano Abierta'),
-    ('B', 'Puño'),
-    ('C', 'Pulgar Arriba'),
-    ('D', 'Símbolo de Rock'),
-    ('E', 'Tres Dedos'),
-    ('F', 'Un Dedo'),
+    ('A', 'Un Dedo'),
+    ('B', 'Tres Dedos'),
+    ('C', 'Mano Abierta'),
+    ('D', 'Mano Cerrada'),
+    ('E', 'Rock'),
+    ('F', 'Telefono'),
 ]

@@ -13,5 +13,7 @@ urlpatterns = [
     path('<int:controlador_id>/', controladores_view.detalle_controlador, name='detalle_controlador'),
     path('actualizar_casillero_usuario/<int:casillero_id>/', controladores_view.actualizar_casillero_usuario, name='actualizar_casillero_usuario'),
     path('cargar_formulario_usuario/<int:casillero_id>/', controladores_view.cargar_formulario_usuario, name='cargar_formulario_usuario'),
+    path('obtener_logs/<int:casillero_id>/', controladores_view.obtener_logs, name='obtener_logs'),
+    path("get_logs_statistics/", views.get_logs_statistics, name="get_logs_statistics"),
 ]
 
