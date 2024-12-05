@@ -179,6 +179,8 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+AUTH_USER_MODEL = 'casillerosapp.User'
+
 
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
